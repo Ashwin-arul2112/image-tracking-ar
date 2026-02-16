@@ -34,7 +34,7 @@ export default function MindARScene(){
       const loader =
       new GLTFLoader()
 
-      loader.load("/models/1.glb",(gltf:any)=>{
+      loader.load("/models/model.glb",(gltf:any)=>{
         const model = gltf.scene
         model.scale.set(0.12,0.12,0.12)
         anchor.group.add(model)
