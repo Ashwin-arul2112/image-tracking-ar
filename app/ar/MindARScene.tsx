@@ -31,6 +31,11 @@ export default function MindARScene(){
       const anchor =
       mindarThree.addAnchor(0)
 
+      /* SMOOTHED GROUP */
+
+      const smoothed = new THREE.Group()
+      scene.add(smoothed)
+
       const loader =
       new GLTFLoader()
 
@@ -38,7 +43,7 @@ export default function MindARScene(){
 
         const model = gltf.scene
 
-        /* -------- REAL WORLD SCALE -------- */
+        /* -------- AUTO SCALE -------- */
 
         const box =
         new THREE.Box3().setFromObject(model)
@@ -51,41 +56,26 @@ export default function MindARScene(){
         const max =
         Math.max(size.x,size.y,size.z)
 
-        /* CHANGE THIS VALUE TO CONTROL SIZE */
-
-        const targetSize = 0.4   
-
-        const scale =
-        targetSize / max
+        const targetSize = 0.4
+        const scale = targetSize / max
 
         model.scale.setScalar(scale)
 
-        /* LIFT MODEL ABOVE MARKER */
-
-        model.position.y = 0.05   // 5cm above
-
-        /* OPTIONAL ROTATION */
-
+        model.position.y = 0.02
         model.rotation.y = Math.PI / 2
 
-        anchor.group.add(model)
+        smoothed.add(model)
 
       })
 
       const light =
-      new THREE.HemisphereLight(
-        0xffffff,
-        0xbbbbff,
-        1
-      )
+      new THREE.HemisphereLight(0xffffff,0xbbbbff,1)
 
       scene.add(light)
 
-      /* START CAMERA FIRST */
-
       await mindarThree.start()
 
-      /* FORCE FULLSCREEN VIDEO */
+      /* FULLSCREEN VIDEO */
 
       const video = mindarThree.video
 
@@ -104,7 +94,38 @@ export default function MindARScene(){
       renderer.domElement.style.height="100vh"
       renderer.domElement.style.zIndex="1"
 
+      /* -------- SMOOTH TRACKING -------- */
+
+      const targetPos = new THREE.Vector3()
+      const targetRot = new THREE.Quaternion()
+
       renderer.setAnimationLoop(()=>{
+
+        if(anchor.group.visible){
+
+          targetPos.copy(anchor.group.position)
+          targetRot.copy(anchor.group.quaternion)
+
+          /* POSITION SMOOTHING */
+
+          smoothed.position.lerp(
+            targetPos,
+            0.08   // stability factor
+          )
+
+          /* ROTATION SMOOTHING */
+
+          smoothed.quaternion.slerp(
+            targetRot,
+            0.08
+          )
+
+          /* LOCK TO MARKER PLANE */
+
+          smoothed.position.y =
+          targetPos.y + 0.02
+        }
+
         renderer.render(scene,camera)
       })
     }
