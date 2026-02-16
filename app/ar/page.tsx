@@ -6,8 +6,7 @@ import dynamicImport from "next/dynamic"
 import { useRef, useState } from "react"
 import ARControls from "../components/ARControls"
 
-/* ---------- LOAD ARSCENE ONLY IN BROWSER ---------- */
-
+/* LOAD ARSCENE ONLY IN BROWSER */
 const ARScene = dynamicImport(
   ()=>import("./ARScene"),
   { ssr:false }
@@ -22,15 +21,15 @@ export default function ARPage(){
 
     if(!navigator.xr) return
 
+    const xrStore = (window as any).xrStore
+    if(!xrStore) return   // ensure ARScene mounted
+
     const img = new Image()
     img.src = "/targets/note.jpeg"
     await img.decode()
 
     const bitmap = await createImageBitmap(img)
 
-    const xrStore = (window as any).xrStore
-
-    /* TRACK IMAGE */
     xrStore.setState({
       trackedImages:[{
         image:bitmap,
@@ -46,7 +45,18 @@ export default function ARPage(){
   const scaleDown = ()=> modelRef.current?.scaleDown()
 
   return(
-    <>
+    <div
+      style={{
+        position:"fixed",
+        top:0,
+        left:0,
+        width:"100vw",
+        height:"100vh",
+        overflow:"hidden",
+        background:"transparent"
+      }}
+    >
+
       <button
         onClick={startAR}
         style={{
@@ -72,6 +82,7 @@ export default function ARPage(){
           scaleDown={scaleDown}
         />
       )}
-    </>
+
+    </div>
   )
 }
