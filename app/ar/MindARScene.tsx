@@ -55,41 +55,39 @@ export default function MindARScene(){
         const scale = targetSize / max
 
         model.scale.setScalar(scale)
-
         model.position.y = 0.02
         model.rotation.y = Math.PI / 2
 
-        /* -------- SMOOTH GROUP -------- */
+        anchor.group.add(model)
 
-        const smoothed = new THREE.Group()
-        smoothed.add(model)
-
-        /* ATTACH TO ANCHOR (VERY IMPORTANT) */
-
-        anchor.group.add(smoothed)
-
-        const targetPos = new THREE.Vector3()
-        const targetRot = new THREE.Quaternion()
+        let placed = false
 
         renderer.setAnimationLoop(()=>{
 
-          if(anchor.group.visible){
+          /* PLACE ONLY ONCE */
 
-            targetPos.copy(anchor.group.position)
-            targetRot.copy(anchor.group.quaternion)
+          if(anchor.group.visible && !placed){
 
-            smoothed.position.lerp(
-              targetPos,
-              0.08
-            )
+            const worldPos =
+            new THREE.Vector3()
 
-            smoothed.quaternion.slerp(
-              targetRot,
-              0.08
-            )
+            const worldQuat =
+            new THREE.Quaternion()
 
-            smoothed.position.y =
-            targetPos.y + 0.02
+            anchor.group.getWorldPosition(worldPos)
+            anchor.group.getWorldQuaternion(worldQuat)
+
+            /* DETACH FROM MARKER */
+
+            anchor.group.remove(model)
+            scene.add(model)
+
+            /* PLACE IN WORLD */
+
+            model.position.copy(worldPos)
+            model.quaternion.copy(worldQuat)
+
+            placed = true
           }
 
           renderer.render(scene,camera)
@@ -98,7 +96,11 @@ export default function MindARScene(){
       })
 
       const light =
-      new THREE.HemisphereLight(0xffffff,0xbbbbff,1)
+      new THREE.HemisphereLight(
+        0xffffff,
+        0xbbbbff,
+        1
+      )
 
       scene.add(light)
 
