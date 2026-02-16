@@ -21,12 +21,32 @@ export default function MindARScene(){
 
       mindarThree = new MindARThree({
         container:containerRef.current,
-        imageTargetSrc:"/targets/note1.mind",
+        imageTargetSrc:"/targets/text.mind",
         maxTrack:1
       })
 
       const {renderer,scene,camera} =
       mindarThree
+
+      /* FORCE FULLSCREEN VIDEO */
+
+      const video =
+      mindarThree.video
+
+      video.style.position="fixed"
+      video.style.top="0"
+      video.style.left="0"
+      video.style.width="100vw"
+      video.style.height="100vh"
+      video.style.objectFit="cover"
+      video.style.zIndex="0"
+
+      renderer.domElement.style.position="fixed"
+      renderer.domElement.style.top="0"
+      renderer.domElement.style.left="0"
+      renderer.domElement.style.width="100vw"
+      renderer.domElement.style.height="100vh"
+      renderer.domElement.style.zIndex="1"
 
       const anchor =
       mindarThree.addAnchor(0)
@@ -78,7 +98,7 @@ export default function MindARScene(){
         left:0,
         width:"100vw",
         height:"100vh",
-        zIndex:0
+        overflow:"hidden"
       }}
     />
   )
