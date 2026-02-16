@@ -1,8 +1,17 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+
+import dynamicImport from "next/dynamic"
 import { useRef, useState } from "react"
-import ARScene, { store } from "./ARScene"
 import ARControls from "../components/ARControls"
+
+/* ---------- LOAD ARSCENE ONLY IN BROWSER ---------- */
+
+const ARScene = dynamicImport(
+  ()=>import("./ARScene"),
+  { ssr:false }
+)
 
 export default function ARPage(){
 
@@ -13,24 +22,22 @@ export default function ARPage(){
 
     if(!navigator.xr) return
 
-    /* LOAD TARGET IMAGE */
-
     const img = new Image()
     img.src = "/targets/note.jpeg"
     await img.decode()
 
     const bitmap = await createImageBitmap(img)
 
-    /* IMPORTANT: widen XR store type */
+    const xrStore = (window as any).xrStore
 
-    ;(store as any).setState({
+    /* TRACK IMAGE */
+    xrStore.setState({
       trackedImages:[{
         image:bitmap,
-        widthInMeters:0.075   // 7.5cm sticky note
+        widthInMeters:0.075
       }]
     })
 
-    const xrStore = (window as any).xrStore
     await xrStore.enterAR()
   }
 
