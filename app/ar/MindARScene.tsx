@@ -21,7 +21,7 @@ export default function MindARScene(){
 
       mindarThree = new MindARThree({
         container:containerRef.current,
-        imageTargetSrc:"/targets/note.mind",
+        imageTargetSrc:"/targets/note1.mind",
         maxTrack:1
       })
 
