@@ -34,21 +34,58 @@ export default function MindARScene(){
       const loader =
       new GLTFLoader()
 
-      loader.load("/models/model.glb",(gltf:any)=>{
+      loader.load("/models/1.glb",(gltf:any)=>{
+
         const model = gltf.scene
-        model.scale.set(0.12,0.12,0.12)
+
+        /* -------- REAL WORLD SCALE -------- */
+
+        const box =
+        new THREE.Box3().setFromObject(model)
+
+        const size =
+        new THREE.Vector3()
+
+        box.getSize(size)
+
+        const max =
+        Math.max(size.x,size.y,size.z)
+
+        /* CHANGE THIS VALUE TO CONTROL SIZE */
+
+        const targetSize = 0.4   
+
+        const scale =
+        targetSize / max
+
+        model.scale.setScalar(scale)
+
+        /* LIFT MODEL ABOVE MARKER */
+
+        model.position.y = 0.05   // 5cm above
+
+        /* OPTIONAL ROTATION */
+
+        model.rotation.y = Math.PI / 2
+
         anchor.group.add(model)
+
       })
 
       const light =
-      new THREE.HemisphereLight(0xffffff,0xbbbbff,1)
+      new THREE.HemisphereLight(
+        0xffffff,
+        0xbbbbff,
+        1
+      )
 
       scene.add(light)
 
       /* START CAMERA FIRST */
+
       await mindarThree.start()
 
-      /* NOW FORCE FULLSCREEN */
+      /* FORCE FULLSCREEN VIDEO */
 
       const video = mindarThree.video
 
