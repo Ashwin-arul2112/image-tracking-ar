@@ -9,15 +9,30 @@ import {
   useRef
 } from "react"
 
-/* ---------- XR STORE ---------- */
+/* ---------- BROWSER-ONLY XR STORE ---------- */
 
-export const store = createXRStore({
-  sessionInit:{
-    requiredFeatures:["image-tracking","local"],
-    optionalFeatures:["dom-overlay"],
-    domOverlay:{ root: document.body }
+let xrStore:any = null
+
+export const getXRStore = ()=>{
+
+  if(typeof window === "undefined") return null
+
+  if(!xrStore){
+
+    xrStore = createXRStore({
+      sessionInit:{
+        requiredFeatures:["image-tracking","local"],
+        optionalFeatures:["dom-overlay"],
+        domOverlay:{ root: document.body },
+        environmentBlendMode:"alpha-blend"
+      }
+    } as any)
+
+    ;(window as any).xrStore = xrStore
   }
-} as any)
+
+  return xrStore
+}
 
 /* ---------- MODEL ---------- */
 
@@ -25,8 +40,6 @@ const Model = forwardRef(({setTracked}:any,ref:any)=>{
 
   const modelRef = useRef<any>(null)
   const { scene } = useGLTF("/models/1.glb")
-
-  /* ---------- IMAGE TRACKING ---------- */
 
   useFrame((_,__,frame)=>{
 
@@ -40,7 +53,7 @@ const Model = forwardRef(({setTracked}:any,ref:any)=>{
 
       if(result.trackingState === "tracked"){
 
-        const refSpace = store.getState().originReferenceSpace
+        const refSpace = getXRStore()?.getState().originReferenceSpace
         if(!refSpace) return
 
         const pose = frame.getPose(
@@ -73,8 +86,6 @@ const Model = forwardRef(({setTracked}:any,ref:any)=>{
       }
     }
   })
-
-  /* ---------- CONTROLS ---------- */
 
   useImperativeHandle(ref,()=>({
 
@@ -122,7 +133,7 @@ export default forwardRef((props:any,ref)=>(
       background:"transparent"
     }}
   >
-    <XR store={store}>
+    <XR store={getXRStore()}>
       <ambientLight intensity={1}/>
       <Model ref={ref} {...props}/>
     </XR>
