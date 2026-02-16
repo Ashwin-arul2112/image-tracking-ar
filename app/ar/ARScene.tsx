@@ -3,32 +3,28 @@
 import { Canvas, useFrame } from "@react-three/fiber"
 import { XR, createXRStore } from "@react-three/xr"
 import { useGLTF } from "@react-three/drei"
-import {
-  forwardRef,
-  useImperativeHandle,
-  useRef
-} from "react"
+import { forwardRef, useImperativeHandle, useRef } from "react"
 
-/* ---------- BROWSER-ONLY XR STORE ---------- */
+/* ---------- BROWSER STORE ---------- */
 
-let xrStore:any = null
+let xrStore:any=null
 
-export const getXRStore = ()=>{
+export const getXRStore=()=>{
 
-  if(typeof window === "undefined") return null
+  if(typeof window==="undefined") return null
 
   if(!xrStore){
 
-    xrStore = createXRStore({
+    xrStore=createXRStore({
       sessionInit:{
         requiredFeatures:["image-tracking","local"],
         optionalFeatures:["dom-overlay"],
-        domOverlay:{ root: document.body },
+        domOverlay:{root:document.body},
         environmentBlendMode:"alpha-blend"
       }
     } as any)
 
-    ;(window as any).xrStore = xrStore
+    ;(window as any).xrStore=xrStore
   }
 
   return xrStore
@@ -36,53 +32,44 @@ export const getXRStore = ()=>{
 
 /* ---------- MODEL ---------- */
 
-const Model = forwardRef(({setTracked}:any,ref:any)=>{
+const Model=forwardRef(({setTracked}:any,ref:any)=>{
 
-  const modelRef = useRef<any>(null)
-  const { scene } = useGLTF("/models/1.glb")
+  const modelRef=useRef<any>(null)
+  const { scene }=useGLTF("/models/1.glb")
 
   useFrame((_,__,frame)=>{
 
     if(!frame) return
 
-    const trackingFrame = frame as any
-    const results = trackingFrame.getImageTrackingResults?.()
+    const results=(frame as any)
+    .getImageTrackingResults?.()
+
     if(!results) return
 
     for(const result of results){
 
-      if(result.trackingState === "tracked"){
+      if(result.trackingState==="tracked"){
 
-        const refSpace = getXRStore()?.getState().originReferenceSpace
+        const refSpace=
+        getXRStore()?.getState().originReferenceSpace
         if(!refSpace) return
 
-        const pose = frame.getPose(
-          result.imageSpace,
-          refSpace
+        const pose=
+        frame.getPose(result.imageSpace,refSpace)
+        if(!pose) return
+
+        const pos=pose.transform.position
+        const rot=pose.transform.orientation
+
+        modelRef.current.visible=true
+
+        modelRef.current.position.set(pos.x,pos.y,pos.z)
+
+        modelRef.current.quaternion.set(
+          rot.x,rot.y,rot.z,rot.w
         )
 
-        if(pose && modelRef.current){
-
-          const pos = pose.transform.position
-          const rot = pose.transform.orientation
-
-          modelRef.current.visible = true
-
-          modelRef.current.position.set(
-            pos.x,
-            pos.y,
-            pos.z
-          )
-
-          modelRef.current.quaternion.set(
-            rot.x,
-            rot.y,
-            rot.z,
-            rot.w
-          )
-
-          setTracked(true)
-        }
+        setTracked(true)
       }
     }
   })
@@ -91,7 +78,7 @@ const Model = forwardRef(({setTracked}:any,ref:any)=>{
 
     rotate(){
       if(!modelRef.current) return
-      modelRef.current.rotation.y += 0.3
+      modelRef.current.rotation.y+=0.3
     },
 
     scaleUp(){

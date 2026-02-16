@@ -1,34 +1,34 @@
 "use client"
 
-export const dynamic = "force-dynamic"
+export const dynamic="force-dynamic"
 
 import dynamicImport from "next/dynamic"
 import { useRef, useState } from "react"
 import ARControls from "../components/ARControls"
 
-/* LOAD ARSCENE ONLY IN BROWSER */
-const ARScene = dynamicImport(
+const ARScene=dynamicImport(
   ()=>import("./ARScene"),
   { ssr:false }
 )
 
 export default function ARPage(){
 
-  const modelRef = useRef<any>(null)
-  const [tracked,setTracked] = useState(false)
+  const modelRef=useRef<any>(null)
+  const [tracked,setTracked]=useState(false)
 
-  const startAR = async ()=>{
+  const startAR=async()=>{
 
     if(!navigator.xr) return
 
-    const xrStore = (window as any).xrStore
-    if(!xrStore) return   // ensure ARScene mounted
+    const xrStore=(window as any).xrStore
+    if(!xrStore) return
 
-    const img = new Image()
-    img.src = "/targets/note.jpeg"
+    const img=new Image()
+    img.src="/targets/note1.jpeg"
     await img.decode()
 
-    const bitmap = await createImageBitmap(img)
+    const bitmap=
+    await createImageBitmap(img)
 
     xrStore.setState({
       trackedImages:[{
@@ -40,9 +40,9 @@ export default function ARPage(){
     await xrStore.enterAR()
   }
 
-  const rotate = ()=> modelRef.current?.rotate()
-  const scaleUp = ()=> modelRef.current?.scaleUp()
-  const scaleDown = ()=> modelRef.current?.scaleDown()
+  const rotate=()=>modelRef.current?.rotate()
+  const scaleUp=()=>modelRef.current?.scaleUp()
+  const scaleDown=()=>modelRef.current?.scaleDown()
 
   return(
     <div
@@ -75,7 +75,7 @@ export default function ARPage(){
         setTracked={setTracked}
       />
 
-      {tracked && (
+      {tracked&&(
         <ARControls
           rotate={rotate}
           scaleUp={scaleUp}
