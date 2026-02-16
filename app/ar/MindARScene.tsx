@@ -21,7 +21,7 @@ export default function MindARScene(){
 
       mindarThree = new MindARThree({
         container:containerRef.current,
-        imageTargetSrc:"/targets/text.mind",
+        imageTargetSrc:"/targets/targ.mind",
         maxTrack:1
       })
 
@@ -55,39 +55,45 @@ export default function MindARScene(){
         const scale = targetSize / max
 
         model.scale.setScalar(scale)
+
         model.position.y = 0.02
         model.rotation.y = Math.PI / 2
 
-        anchor.group.add(model)
+        /* -------- SMOOTH GROUP -------- */
 
-        let placed = false
+        const smoothed = new THREE.Group()
+        smoothed.add(model)
+
+        anchor.group.add(smoothed)
+
+        const targetPos = new THREE.Vector3()
+        const targetRot = new THREE.Quaternion()
 
         renderer.setAnimationLoop(()=>{
 
-          /* PLACE ONLY ONCE */
+          if(anchor.group.visible){
 
-          if(anchor.group.visible && !placed){
+            targetPos.copy(anchor.group.position)
+            targetRot.copy(anchor.group.quaternion)
 
-            const worldPos =
-            new THREE.Vector3()
+            /* POSITION SMOOTHING */
 
-            const worldQuat =
-            new THREE.Quaternion()
+            smoothed.position.lerp(
+              targetPos,
+              0.05
+            )
 
-            anchor.group.getWorldPosition(worldPos)
-            anchor.group.getWorldQuaternion(worldQuat)
+            /* ROTATION SMOOTHING */
 
-            /* DETACH FROM MARKER */
+            smoothed.quaternion.slerp(
+              targetRot,
+              0.05
+            )
 
-            anchor.group.remove(model)
-            scene.add(model)
+            /* LOCK HEIGHT */
 
-            /* PLACE IN WORLD */
-
-            model.position.copy(worldPos)
-            model.quaternion.copy(worldQuat)
-
-            placed = true
+            smoothed.position.y =
+            targetPos.y + 0.02
           }
 
           renderer.render(scene,camera)
@@ -106,7 +112,7 @@ export default function MindARScene(){
 
       await mindarThree.start()
 
-      /* FULLSCREEN VIDEO */
+      /* FULLSCREEN CAMERA */
 
       const video = mindarThree.video
 
