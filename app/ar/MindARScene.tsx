@@ -31,11 +31,6 @@ export default function MindARScene(){
       const anchor =
       mindarThree.addAnchor(0)
 
-      /* SMOOTHED GROUP */
-
-      const smoothed = new THREE.Group()
-      scene.add(smoothed)
-
       const loader =
       new GLTFLoader()
 
@@ -64,7 +59,41 @@ export default function MindARScene(){
         model.position.y = 0.02
         model.rotation.y = Math.PI / 2
 
+        /* -------- SMOOTH GROUP -------- */
+
+        const smoothed = new THREE.Group()
         smoothed.add(model)
+
+        /* ATTACH TO ANCHOR (VERY IMPORTANT) */
+
+        anchor.group.add(smoothed)
+
+        const targetPos = new THREE.Vector3()
+        const targetRot = new THREE.Quaternion()
+
+        renderer.setAnimationLoop(()=>{
+
+          if(anchor.group.visible){
+
+            targetPos.copy(anchor.group.position)
+            targetRot.copy(anchor.group.quaternion)
+
+            smoothed.position.lerp(
+              targetPos,
+              0.08
+            )
+
+            smoothed.quaternion.slerp(
+              targetRot,
+              0.08
+            )
+
+            smoothed.position.y =
+            targetPos.y + 0.02
+          }
+
+          renderer.render(scene,camera)
+        })
 
       })
 
@@ -93,41 +122,6 @@ export default function MindARScene(){
       renderer.domElement.style.width="100vw"
       renderer.domElement.style.height="100vh"
       renderer.domElement.style.zIndex="1"
-
-      /* -------- SMOOTH TRACKING -------- */
-
-      const targetPos = new THREE.Vector3()
-      const targetRot = new THREE.Quaternion()
-
-      renderer.setAnimationLoop(()=>{
-
-        if(anchor.group.visible){
-
-          targetPos.copy(anchor.group.position)
-          targetRot.copy(anchor.group.quaternion)
-
-          /* POSITION SMOOTHING */
-
-          smoothed.position.lerp(
-            targetPos,
-            0.08   // stability factor
-          )
-
-          /* ROTATION SMOOTHING */
-
-          smoothed.quaternion.slerp(
-            targetRot,
-            0.08
-          )
-
-          /* LOCK TO MARKER PLANE */
-
-          smoothed.position.y =
-          targetPos.y + 0.02
-        }
-
-        renderer.render(scene,camera)
-      })
     }
 
     start()
