@@ -13,24 +13,23 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "WebXR AR",
-  description: "Image Tracking AR Experience",
+  title: "Image Tracking AR",
+  description: "Marker Based Augmented Reality Experience",
 }
 
 export default function RootLayout({
   children,
-}: {
+}:{
   children: React.ReactNode
-}) {
-  return (
+}){
+  return(
     <html
       lang="en"
       style={{
         margin:0,
         padding:0,
         width:"100%",
-        height:"100%",
-        background:"transparent"
+        height:"100%"
       }}
     >
       <body
@@ -40,7 +39,8 @@ export default function RootLayout({
           padding:0,
           width:"100%",
           height:"100%",
-          background:"transparent"
+          overflow:"hidden",
+          background:"#000"
         }}
       >
         {children}
