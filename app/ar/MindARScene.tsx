@@ -28,10 +28,29 @@ export default function MindARScene(){
       const {renderer,scene,camera} =
       mindarThree
 
-      /* FORCE FULLSCREEN VIDEO */
+      const anchor =
+      mindarThree.addAnchor(0)
 
-      const video =
-      mindarThree.video
+      const loader =
+      new GLTFLoader()
+
+      loader.load("/models/1.glb",(gltf:any)=>{
+        const model = gltf.scene
+        model.scale.set(0.12,0.12,0.12)
+        anchor.group.add(model)
+      })
+
+      const light =
+      new THREE.HemisphereLight(0xffffff,0xbbbbff,1)
+
+      scene.add(light)
+
+      /* START CAMERA FIRST */
+      await mindarThree.start()
+
+      /* NOW FORCE FULLSCREEN */
+
+      const video = mindarThree.video
 
       video.style.position="fixed"
       video.style.top="0"
@@ -47,34 +66,6 @@ export default function MindARScene(){
       renderer.domElement.style.width="100vw"
       renderer.domElement.style.height="100vh"
       renderer.domElement.style.zIndex="1"
-
-      const anchor =
-      mindarThree.addAnchor(0)
-
-      const loader =
-      new GLTFLoader()
-
-      loader.load("/models/1.glb",(gltf:any)=>{
-
-        const model =
-        gltf.scene
-
-        model.scale.set(0.12,0.12,0.12)
-
-        anchor.group.add(model)
-
-      })
-
-      const light =
-      new THREE.HemisphereLight(
-        0xffffff,
-        0xbbbbff,
-        1
-      )
-
-      scene.add(light)
-
-      await mindarThree.start()
 
       renderer.setAnimationLoop(()=>{
         renderer.render(scene,camera)
