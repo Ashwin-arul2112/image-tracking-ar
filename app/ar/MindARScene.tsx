@@ -13,19 +13,16 @@ export default function MindARScene(){
 
     const start = async()=>{
 
-      /* ✔ LOAD MINDAR */
       const { MindARThree } =
       await import("mind-ar/dist/mindar-image-three.prod.js")
 
-      /* ✔ LOAD GLTF LOADER DYNAMICALLY */
       const { GLTFLoader } =
-      await import(
-        "three/examples/jsm/loaders/GLTFLoader.js"
-      )
+      await import("three/examples/jsm/loaders/GLTFLoader.js")
 
       mindarThree = new MindARThree({
         container:containerRef.current,
-        imageTargetSrc:"/targets/note.mind"
+        imageTargetSrc:"/targets/note.mind",
+        maxTrack:1
       })
 
       const {renderer,scene,camera} =
@@ -42,7 +39,7 @@ export default function MindARScene(){
         const model =
         gltf.scene
 
-        model.scale.set(0.2,0.2,0.2)
+        model.scale.set(0.12,0.12,0.12)
 
         anchor.group.add(model)
 
@@ -80,7 +77,8 @@ export default function MindARScene(){
         top:0,
         left:0,
         width:"100vw",
-        height:"100vh"
+        height:"100vh",
+        zIndex:0
       }}
     />
   )
